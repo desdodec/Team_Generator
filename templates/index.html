@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f9fc;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #007BFF;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        input, textarea {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            width: 300px;
+            display: block;
+            margin: 10px auto;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            font-size: 1.1rem;
+        }
+
+        .error {
+            color: red;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Team Generator</h1>
+    <p><strong>Total Names:</strong> {{ total_names }}</p>
+    <p>Fill in <strong>either</strong> the number of teams or the maximum team size. Leave the other blank.</p>
+
+    <form method="POST" action="/" id="teamForm">
+        <label for="num_teams">Number of Teams (optional):</label>
+        <input type="number" id="num_teams" name="num_teams" min="1" placeholder="Enter number of teams">
+
+        <label for="max_team_size">Maximum Team Size (optional):</label>
+        <input type="number" id="max_team_size" name="max_team_size" min="1" placeholder="Enter maximum team size">
+
+        <label for="incompatible_pairs">Incompatible Pairs (e.g., Emma,Liam; Olivia,Noah):</label>
+        <textarea id="incompatible_pairs" name="incompatible_pairs" rows="3" placeholder="Enter pairs separated by semicolons"></textarea>
+
+        <button type="submit">Generate Teams</button>
+        <p class="error" id="errorMessage"></p>
+    </form>
+
+    <script>
+        // Validate the form before submission
+        document.getElementById('teamForm').addEventListener('submit', function (e) {
+            const numTeams = document.getElementById('num_teams').value;
+            const maxTeamSize = document.getElementById('max_team_size').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Clear previous errors
+            errorMessage.textContent = '';
+
+            // Ensure only one field is filled
+            if (numTeams && maxTeamSize) {
+                e.preventDefault(); // Stop form submission
+                errorMessage.textContent = 'Please fill only one of the fields: Number of Teams or Maximum Team Size.';
+            } else if (!numTeams && !maxTeamSize) {
+                e.preventDefault(); // Stop form submission
+                errorMessage.textContent = 'Please fill in either Number of Teams or Maximum Team Size.';
+            }
+        });
+    </script>
+</body>
+</html>

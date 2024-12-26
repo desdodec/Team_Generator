@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Sort Game</title>
+    <style>
+        /* Same modern CSS as the timer page */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #007BFF;
+        }
+
+        .team {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+
+        .team h3 {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 10px;
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 100px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button, select {
+            padding: 10px 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 25px;
+            background-color: #007BFF;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        select {
+            margin: 10px;
+            background-color: white;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Team Sort Game</h1>
+
+    <div id="families">
+        <div class="team">
+            <h3>Family 1</h3>
+            <div class="avatar" style="background-color: #FF5733;">Fergus</div>
+            <div class="avatar" style="background-color: #33FF57;">Douglas</div>
+            <div class="avatar" style="background-color: #3357FF;">Elise</div>
+            <div class="avatar" style="background-color: #FF33A1;">Graham</div>
+            <div class="avatar" style="background-color: #A133FF;">Sarah</div>
+        </div>
+
+        <div class="team">
+            <h3>Family 2</h3>
+            <div class="avatar" style="background-color: #FFC300;">Stanley</div>
+            <div class="avatar" style="background-color: #DAF7A6;">Nigel</div>
+            <div class="avatar" style="background-color: #900C3F;">Helen</div>
+        </div>
+    </div>
+
+    <h3>Number of Teams</h3>
+    <select id="numTeams">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+    </select>
+
+    <h3>Select members who cannot be in the same team:</h3>
+    <select id="exclude1">
+        <option value="">Select Member 1</option>
+        <option value="Fergus">Fergus</option>
+        <option value="Douglas">Douglas</option>
+        <option value="Elise">Elise</option>
+        <option value="Graham">Graham</option>
+        <option value="Sarah">Sarah</option>
+        <option value="Stanley">Stanley</option>
+        <option value="Nigel">Nigel</option>
+        <option value="Helen">Helen</option>
+    </select>
+    <select id="exclude2">
+        <option value="">Select Member 2</option>
+        <option value="Fergus">Fergus</option>
+        <option value="Douglas">Douglas</option>
+        <option value="Elise">Elise</option>
+        <option value="Graham">Graham</option>
+        <option value="Sarah">Sarah</option>
+        <option value="Stanley">Stanley</option>
+        <option value="Nigel">Nigel</option>
+        <option value="Helen">Helen</option>
+    </select>
+
+    <button onclick="createTeams()">Create Teams</button>
+
+    <script>
+        function createTeams() {
+            const numTeams = parseInt(document.getElementById("numTeams").value);
+            const exclude1 = document.getElementById("exclude1").value;
+            const exclude2 = document.getElementById("exclude2").value;
+
+            // Family members
+            const family1 = ["Fergus", "Douglas", "Elise", "Graham", "Sarah"];
+            const family2 = ["Stanley", "Nigel", "Helen"];
+
+            const allMembers = [...family1, ...family2];
+
+            // Shuffle members randomly
+            allMembers.sort(() => Math.random() - 0.5);
+
+            // Create empty teams
+            const teams = Array.from({ length: numTeams }, () => []);
+
+            // Distribute members
+            allMembers.forEach((member, index) => {
+                if (member === exclude1 || member === exclude2) {
+                    // Ensure exclusions are placed in separate teams
+                    const targetTeam = index % numTeams === 0 ? 1 : 0;
+                    teams[targetTeam].push(member);
+                } else {
+                    teams[index % numTeams].push(member);
+                }
+            });
+
+            // Store the teams in localStorage
+            localStorage.setItem("teams", JSON.stringify(teams));
+
+            // Redirect to the timer page
+            window.location.href = "timer.html";
+        }
+    </script>
+</body>
+</html>
