@@ -5,71 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f7f9fc;
-            text-align: center;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #007BFF;
-            font-size: 2.5rem;
-            font-weight: 600;
-        }
-
-        form {
-            margin-top: 20px;
-        }
-
-        label {
-            font-size: 1.2rem;
-            margin-right: 10px;
-        }
-
-        input, textarea {
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            width: 300px;
-            display: block;
-            margin: 10px auto;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            color: white;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        p {
-            font-size: 1.1rem;
-        }
-
-        .error {
-            color: red;
-            font-size: 1rem;
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <h1>Team Generator</h1>
 
     <form method="POST" action="/" enctype="multipart/form-data">
-        <label for="file">Upload Excel File:</label>
-        <input type="file" id="file" name="file" accept=".xlsx">
+        {% if total_names %}
+            <p><strong>{{ total_names }} names loaded from the previously uploaded file.</strong></p>
+            <p>You can upload a new file to replace the existing one or directly generate teams.</p>
+        {% else %}
+            <p>Upload an Excel file to begin:</p>
+            <input type="file" id="file" name="file" accept=".xlsx" required>
+        {% endif %}
 
         <label for="num_teams">Number of Teams (optional):</label>
         <input type="number" id="num_teams" name="num_teams" min="1" placeholder="Enter number of teams">
@@ -80,7 +28,12 @@
         <label for="incompatible_pairs">Incompatible Pairs (e.g., Emma,Liam; Olivia,Noah):</label>
         <textarea id="incompatible_pairs" name="incompatible_pairs" rows="3" placeholder="Enter pairs separated by semicolons"></textarea>
 
-        <button type="submit">Generate Teams</button>
+        <div>
+            <button type="submit" name="action" value="upload" class="upload-button">Upload File</button>
+            {% if total_names %}
+                <button type="submit" name="action" value="generate" class="generate-button">Generate Teams</button>
+            {% endif %}
+        </div>
 
         {% if error_message %}
         <p class="error">{{ error_message }}</p>

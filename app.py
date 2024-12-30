@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.utils import secure_filename
 import pandas as pd
 import math
@@ -8,7 +8,6 @@ import random
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
-# Upload folder configuration
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'xlsx'}
 
@@ -18,20 +17,14 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Check if the uploaded file is an allowed type
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Read names from Excel file
-
 
 def read_names_from_excel(file_path):
     df = pd.read_excel(file_path, header=None)
-    return df[0].dropna().tolist()  # Assume names are in the first column
-
-# Generate teams function
+    return df[0].dropna().tolist()
 
 
 def generate_teams(names, num_teams=None, max_team_size=None, incompatible_pairs=[]):
@@ -59,51 +52,81 @@ def index():
     total_names = None
     error_message = None
 
-    if request.method == "POST":
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-
-        file = request.files['file']
-
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-
-            # Read names from the uploaded file
+    # Check if a file has already been uploaded
+    if 'uploaded_file' in session:
+        file_path = session['uploaded_file']
+        if os.path.exists(file_path):
             names = read_names_from_excel(file_path)
             total_names = len(names)
 
-            # Process form inputs
-            num_teams = request.form.get("num_teams", "").strip()
-            num_teams = int(num_teams) if num_teams.isdigit() else None
+    if request.method == "POST":
+        action = request.form.get("action")
 
-            max_team_size = request.form.get("max_team_size", "").strip()
-            max_team_size = int(
-                max_team_size) if max_team_size.isdigit() else None
+        if action == "upload":
+            # Handle file upload
+            if 'file' in request.files and request.files['file'].filename != '':
+                file = request.files['file']
 
-            incompatible_pairs = request.form.get(
-                "incompatible_pairs", "").split(";")
-            incompatible_pairs = [pair.strip()
-                                  for pair in incompatible_pairs if pair.strip()]
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(
+                        app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
 
-            # Validate form inputs
-            if num_teams and max_team_size:
-                error_message = "Please fill only one field: Number of Teams or Maximum Team Size."
-            elif not num_teams and not max_team_size:
-                error_message = "Please fill in either Number of Teams or Maximum Team Size."
+                    # Store the uploaded file in the session
+                    session['uploaded_file'] = file_path
+
+                    names = read_names_from_excel(file_path)
+                    total_names = len(names)
+                    flash(
+                        f"File uploaded successfully! {total_names} names loaded.")
+                else:
+                    flash("Invalid file type. Please upload a valid Excel file.")
             else:
-                # Generate teams
-                teams = generate_teams(
-                    names, num_teams=num_teams, max_team_size=max_team_size, incompatible_pairs=incompatible_pairs)
-                return render_template("results.html", teams=teams)
+                flash("No file selected. Please choose a file to upload.")
+
+        elif action == "generate":
+            # Handle team generation
+            if 'uploaded_file' in session:
+                file_path = session['uploaded_file']
+                names = read_names_from_excel(file_path)
+
+                # Process inputs
+                num_teams = request.form.get("num_teams", "").strip()
+                num_teams = int(num_teams) if num_teams.isdigit() else None
+
+                max_team_size = request.form.get("max_team_size", "").strip()
+                max_team_size = int(
+                    max_team_size) if max_team_size.isdigit() else None
+
+                incompatible_pairs = request.form.get(
+                    "incompatible_pairs", "").split(";")
+                incompatible_pairs = [pair.strip()
+                                      for pair in incompatible_pairs if pair.strip()]
+
+                if num_teams and max_team_size:
+                    error_message = "Please fill only one field: Number of Teams or Maximum Team Size."
+                elif not num_teams and not max_team_size:
+                    error_message = "Please fill in either Number of Teams or Maximum Team Size."
+                else:
+                    teams = generate_teams(
+                        names,
+                        num_teams=num_teams,
+                        max_team_size=max_team_size,
+                        incompatible_pairs=incompatible_pairs
+                    )
+                    return render_template("results.html", teams=teams)
+            else:
+                flash("No file uploaded. Please upload a file first.")
 
     return render_template("index.html", total_names=total_names, error_message=error_message)
+
+
+@app.route("/clear", methods=["GET"])
+def clear_session():
+    # Clear the uploaded file from the session
+    session.pop('uploaded_file', None)
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":

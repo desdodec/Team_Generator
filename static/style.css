@@ -1,22 +1,69 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f7f9fc;
     text-align: center;
     padding: 20px;
 }
 
-.family {
-    margin-bottom: 20px;
+h1 {
+    color: #007BFF;
+    font-size: 2.5rem;
+    font-weight: 600;
 }
 
-.avatar {
-    display: inline-block;
-    margin: 10px;
-    background-color: #007BFF;
-    color: white;
+form {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+label {
+    font-size: 1rem;
+    color: #333;
+    margin-top: 10px;
+    display: block;
+}
+
+input, textarea {
+    width: 100%;
     padding: 10px;
-    border-radius: 50%;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
 }
 
-.team h3 {
-    margin-bottom: 10px;
+.upload-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: white;
+    background-color: #FF5733;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.upload-button:hover {
+    background-color: #C70039;
+}
+
+.generate-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.generate-button:hover {
+    background-color: #0056b3;
+}
+
+p.error {
+    color: red;
+    font-size: 1rem;
+    margin-top: 10px;
 }
