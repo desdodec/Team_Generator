@@ -66,11 +66,10 @@
 </head>
 <body>
     <h1>Team Generator</h1>
+    <p><strong>Total Names:</strong> {{ total_names }}</p>
+    <p>Fill in <strong>either</strong> the number of teams or the maximum team size. Leave the other blank.</p>
 
-    <form method="POST" action="/" enctype="multipart/form-data">
-        <label for="file">Upload Excel File:</label>
-        <input type="file" id="file" name="file" accept=".xlsx">
-
+    <form method="POST" action="/" id="teamForm">
         <label for="num_teams">Number of Teams (optional):</label>
         <input type="number" id="num_teams" name="num_teams" min="1" placeholder="Enter number of teams">
 
@@ -81,10 +80,28 @@
         <textarea id="incompatible_pairs" name="incompatible_pairs" rows="3" placeholder="Enter pairs separated by semicolons"></textarea>
 
         <button type="submit">Generate Teams</button>
-
-        {% if error_message %}
-        <p class="error">{{ error_message }}</p>
-        {% endif %}
+        <p class="error" id="errorMessage"></p>
     </form>
+
+    <script>
+        // Validate the form before submission
+        document.getElementById('teamForm').addEventListener('submit', function (e) {
+            const numTeams = document.getElementById('num_teams').value;
+            const maxTeamSize = document.getElementById('max_team_size').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Clear previous errors
+            errorMessage.textContent = '';
+
+            // Ensure only one field is filled
+            if (numTeams && maxTeamSize) {
+                e.preventDefault(); // Stop form submission
+                errorMessage.textContent = 'Please fill only one of the fields: Number of Teams or Maximum Team Size.';
+            } else if (!numTeams && !maxTeamSize) {
+                e.preventDefault(); // Stop form submission
+                errorMessage.textContent = 'Please fill in either Number of Teams or Maximum Team Size.';
+            }
+        });
+    </script>
 </body>
 </html>
